@@ -1,8 +1,3 @@
-#include <stdlib.h>
-#include <stdio.h>
-#include <malloc.h>
-#include <string.h>
-
 #ifndef STRUCT_DATA
 #define STRUCT_DATA
 

@@ -1,10 +1,11 @@
 #include "readdata.h"
+#include "headerlist.h"
 
 struct Question* read_gag()
 {
     struct Question* quest_list = (struct Question*)malloc(sizeof(struct Question)*1600);
 
-    FILE* fp = fopen("../data/gag/gag1.txt", "r");
+    FILE* fp = fopen("../rsc/gag/gag1.txt", "r");
     if(fp == NULL)
     {
         perror("File Open error");

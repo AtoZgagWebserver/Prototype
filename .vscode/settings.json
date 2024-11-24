@@ -1,3 +1,7 @@
 {
-    "cph.general.saveLocation": ""
+    "cph.general.saveLocation": "",
+    "files.associations": {
+        "headerlist.h": "c",
+        "threadfunc.h": "c"
+    }
 }
