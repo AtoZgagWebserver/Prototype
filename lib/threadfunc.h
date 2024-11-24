@@ -23,8 +23,9 @@ struct Queue
 
 void* worker(void* arg);
 int handleclient();
-struct Queue new_queue();
+struct Queue* new_queue();
 int empty(struct Queue* q);
 int size(struct Queue* q);
-struct Work pop(struct Queue* q);
+struct Work* pop(struct Queue* q);
 void push(struct Work w,struct Queue* q);
+pthread_t* make_worker(int work_num);

@@ -11,8 +11,8 @@ int main(int argc, char* argv[])
         exit(1);
     }
     int portnum = atoi(argv[1]), worknum = atoi(argv[2]);
-    int sd, ns, clientlen = sizeof(cli);
     struct sockaddr_in sin, cli;
+    int sd, ns, clientlen = sizeof(cli);
     
     // create socket
     
@@ -28,9 +28,9 @@ int main(int argc, char* argv[])
 
     // create socket struct
     memset((char *)&sin, '\0', sizeof(sin));
-    sin.sin_familty = AF_INET;
+    sin.sin_family = AF_INET;
     sin.sin_port = htons(portnum);
-    sin.sin_addr = inet_addr("0.0.0.0");
+    sin.sin_addr.s_addr = inet_addr("0.0.0.0");
 
     //bind
     if (bind(sd, (struct sockaddr *)&sin, sizeof(sin)))
@@ -44,6 +44,8 @@ int main(int argc, char* argv[])
         exit(1);
     }
     pthread_t* worker_tid = make_worker(worknum);
+
+    
 
     return 0;
 }

@@ -10,6 +10,6 @@
 #include <arpa/inet.h>
 #include <malloc.h>
 #include <string.h>
-#include <thread.h>
+#include <pthread.h>
 
 #endif

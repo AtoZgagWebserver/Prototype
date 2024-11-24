@@ -9,9 +9,9 @@ int handclient()
 
 pthread_t* make_worker(int work_num)
 {
-    pthread_t* tid_list = (pthread_t*) malloc(sizeof(thread_t)*work_num);
+    pthread_t* tid_list = (pthread_t*) malloc(sizeof(pthread_t)*work_num);
 
-    for(int i=0; i<n; i++)
+    for(int i=0; i<work_num; i++)
     {
         struct ThrInfo* thrinf = (struct ThrInfo*)malloc(sizeof(struct ThrInfo));
 
@@ -26,7 +26,7 @@ pthread_t* make_worker(int work_num)
 
 void* worker(void* arg) // worker number
 {
-    struct ThrInfo inf = *(struct ThrInfo*)arg;
+    struct ThrInfo* inf = (struct ThrInfo*)arg;
 
     while(1) // thread 개수는 미정 차차 맞춰갈 예정임. 
     {
@@ -36,7 +36,7 @@ void* worker(void* arg) // worker number
     }
 }
 
-struct Queue new_queue()
+struct Queue* new_queue()
 {
     // make new queue
     struct Queue* q = (struct Queue*)malloc(sizeof(struct Queue));
@@ -81,16 +81,20 @@ void push(struct Work w,struct Queue* q)
 {
     if(full(q)) // size reallocation 
     {
-        realloc(q->items,sizeof(q->items)*2);
+        if(realloc(q->items,sizeof(q->items)*2)==NULL)
+        {
+            perror("Realloc");
+            exit(1);
+        }
         // move item to new space
         if(q->front > q->rear)
         {
             for(int i=0; i<q->rear; i++)
             {
-                q->items[maxsize+i] = q->items[i];
+                q->items[q->maxsize+i] = q->items[i];
             }
         }
-        q->rear = q->maxsize + rear;
+        q->rear = q->maxsize + q->rear;
         q->maxsize*=2;
     }
     q->items[q->rear] = w;
