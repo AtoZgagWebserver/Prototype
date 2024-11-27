@@ -15,13 +15,13 @@ int main(int argc, char* argv[])
     int sd, ns, clientlen = sizeof(cli);
     
     // create socket
-    
     sd = socket(AF_INET, SOCK_STREAM, 0);
     if(sd == -1)
     {
         perror("socket");
         exit(1);
     }
+
     // port recycle
     int optval = 1;
     setsockopt(sd, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval));
@@ -45,7 +45,19 @@ int main(int argc, char* argv[])
     }
     pthread_t* worker_tid = make_worker(worknum);
 
+    int cnt = 0;
     
+    while(1){
+		int *ns = malloc(sizeof(int *));
+		if((*ns=accept(sd,(struct sockaddr*)&cli,&clientlen))==-1){
+			perror("accept");
+			exit(1);
+		}
+        printf("accept\n");
+		pthread_t pid;
+		pthread_create(&pid,NULL,tcp,(void*)ns);
+	}
+	close(sd);
 
     return 0;
 }
