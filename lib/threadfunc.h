@@ -24,11 +24,12 @@ struct Queue
 
 #endif
 
-void* worker(void* arg);
-int handleclient();
+//queue function
 struct Queue* new_queue();
 int empty(struct Queue* q);
 int size(struct Queue* q);
 struct Work* pop(struct Queue* q);
-void push(struct Work w,struct Queue* q);
-pthread_t* make_worker(int work_num);
+void push(struct Work* w,struct Queue* q);
+
+//thread function
+struct ThrInfo* make_worker(int work_num);

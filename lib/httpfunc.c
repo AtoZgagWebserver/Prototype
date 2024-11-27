@@ -1,6 +1,6 @@
 #include "httpfunc.h"
 
-void parse_http_request(const char *request, HTTPRequest *http_request) {
+void parse_http_request(const char *request, struct HTTPRequest *http_request) {
     //요청 메소드, 경로, 내용 길이, 내용 만 일단 추출
     char *pos;
 

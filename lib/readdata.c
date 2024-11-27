@@ -28,10 +28,14 @@ struct QuestionList* read_gag()
         q_list->item[q_list->size].quest = strdup(quest);
         q_list->item[q_list->size].ans = strdup(ans);
         q_list->size++;
-        if(q_list->size>=q_list->maxisze)
+        if(q_list->size>=q_list->maxsize)
         {
             q_list->maxsize*=2;
-            realloc(q_list->item,sizeof(struct Question)*q_list->maxsize);
+            if(realloc(q_list->item,sizeof(struct Question)*q_list->maxsize) == NULL)
+            {
+                perror("realloc");
+                exit(1);
+            }
         }
     }
 

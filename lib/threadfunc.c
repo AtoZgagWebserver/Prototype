@@ -16,8 +16,8 @@ int handle_client(struct Work* w)
     if(n>0){
         data[data_len] = '\0';
 
-        HTTPRequest http_request;
-        memset(&http_request, 0, sizeof(HTTPRequest));
+        struct HTTPRequest http_request;
+        memset(&http_request, 0, sizeof(struct HTTPRequest));
 
         parse_http_request(data, &http_request);
 
@@ -35,12 +35,12 @@ int handle_client(struct Work* w)
         { //GET 요청의 경우
             printf("get -> html리턴\n");
             char file_path[512];
-            snprintf(file_path, sizeof(file_path), "./static/%s", http_request.path[0] == '/' ? http_request.path + 1 : http_request.path);
+            snprintf(file_path, sizeof(file_path), "./rsc/html/%s", http_request.path[0] == '/' ? http_request.path + 1 : http_request.path);
             send_file_content(ns, file_path);
         }
         if (strcmp(http_request.method, "POST") == 0) 
         { 
-            
+
         }
     }
 
@@ -48,6 +48,19 @@ int handle_client(struct Work* w)
     free(w);
 
     return 0;
+}
+
+void* worker(void* arg) // worker number
+{
+    struct ThrInfo* inf = (struct ThrInfo*)arg;
+
+    while(1) // thread 개수는 미정 차차 맞춰갈 예정임. 
+    {
+        struct Work* w = pop(inf->q);
+        if(w == NULL)continue;
+        printf("Thread number %d get work.\n", inf->number);
+        handle_client(w);
+    }
 }
 
 struct ThrInfo* make_worker(int work_num)
@@ -64,17 +77,7 @@ struct ThrInfo* make_worker(int work_num)
     return thrinflist;
 }
 
-void* worker(void* arg) // worker number
-{
-    struct ThrInfo* inf = (struct ThrInfo*)arg;
 
-    while(1) // thread 개수는 미정 차차 맞춰갈 예정임. 
-    {
-        struct Work* w = pop(inf->q);
-        if(w == NULL)continue;
-        handle_client(w);
-    }
-}
 
 struct Queue* new_queue()
 {
@@ -111,7 +114,7 @@ struct Work* pop(struct Queue* q)
     //if queue is empty than return NULL;
     if(empty(q))return NULL;
 
-    struct Work* res = &q->items[q->front];
+    struct Work* res = q->items[q->front];
     q->front = (q->front+1)%q->maxsize;
 
     return res;

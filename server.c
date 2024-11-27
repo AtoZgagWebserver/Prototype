@@ -45,21 +45,28 @@ int main(int argc, char* argv[])
         exit(1);
     }
     
+    printf("Making worker...\n");
     struct ThrInfo* worker = make_worker(worknum);
+    printf("Make worker process done.\n");
 
     int cnt = 0;
-
+    
+    printf("Ready for accept client\n");
     while(1)
     {
 		struct Work *work = (struct Work*)malloc(sizeof(struct Work));
-
+        
 		if((work->ns=accept(sd,(struct sockaddr*)&cli,&clientlen))==-1)
         {
 			perror("accept");
 			exit(1);
 		}
         printf("accept\n");
+        printf("push work to worker[%d]\n", cnt);
         push(work, worker[cnt].q);
+        printf("push done\n");
+        cnt = (cnt+1)%worknum;
+
 	}
 	close(sd);
 
