@@ -1,6 +1,7 @@
 #include "lib/headerlist.h"
 #include "lib/readdata.h"
 #include "lib/threadfunc.h"
+#include "lib/httpfunc.h"
 
 int main(int argc, char* argv[])
 {
@@ -43,19 +44,22 @@ int main(int argc, char* argv[])
         perror("listen error");
         exit(1);
     }
-    pthread_t* worker_tid = make_worker(worknum);
+    
+    struct ThrInfo* worker = make_worker(worknum);
 
     int cnt = 0;
-    
-    while(1){
-		int *ns = malloc(sizeof(int *));
-		if((*ns=accept(sd,(struct sockaddr*)&cli,&clientlen))==-1){
+
+    while(1)
+    {
+		struct Work *work = (struct Work*)malloc(sizeof(struct Work));
+
+		if((work->ns=accept(sd,(struct sockaddr*)&cli,&clientlen))==-1)
+        {
 			perror("accept");
 			exit(1);
 		}
         printf("accept\n");
-		pthread_t pid;
-		pthread_create(&pid,NULL,tcp,(void*)ns);
+        push(work, worker[cnt].q);
 	}
 	close(sd);
 

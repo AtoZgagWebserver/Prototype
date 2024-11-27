@@ -1,27 +1,67 @@
-#include "headerlist.h"
 #include "threadfunc.h"
+#include "httpfunc.h"
 
-int handle_client()
+int handle_client(struct Work* w)
 {
-    return 0;
-    //what to do?
-}
+    int ns = w->ns;
+    char buf[HTTP_BUF_MAX_SIZE]; // 수신 버퍼
+    char data[HTTP_BUF_MAX_SIZE]; // 요청 데이터를 저장할 배열
+    ssize_t n;
+    int data_len = 0;
 
-pthread_t* make_worker(int work_num)
-{
-    pthread_t* tid_list = (pthread_t*) malloc(sizeof(pthread_t)*work_num);
+    // 클라이언트로부터 HTTP 요청을 수신
+    n = recv(ns, data, HTTP_BUF_MAX_SIZE - 1, 0);
+    data_len=strlen(data);
 
-    for(int i=0; i<work_num; i++)
-    {
-        struct ThrInfo* thrinf = (struct ThrInfo*)malloc(sizeof(struct ThrInfo));
+    if(n>0){
+        data[data_len] = '\0';
 
-        thrinf->number = i;
-        thrinf->q = new_queue();
+        HTTPRequest http_request;
+        memset(&http_request, 0, sizeof(HTTPRequest));
 
-        pthread_create(&tid_list[i],NULL,worker,(void*)thrinf);
+        parse_http_request(data, &http_request);
+
+        // printf("Method: %s\n", http_request.method);
+        // printf("Path: %s\n", http_request.path);
+        // if (http_request.content_length > 0) {
+        //     printf("Content-Length: %d\n", http_request.content_length);
+        // }
+        // if (strlen(http_request.body) > 0) {
+        //     printf("Body:\n%s\n", http_request.body);
+        // }
+
+        //요청에 따라 어떻게 처리할지
+        if (strcmp(http_request.method, "GET") == 0) 
+        { //GET 요청의 경우
+            printf("get -> html리턴\n");
+            char file_path[512];
+            snprintf(file_path, sizeof(file_path), "./static/%s", http_request.path[0] == '/' ? http_request.path + 1 : http_request.path);
+            send_file_content(ns, file_path);
+        }
+        if (strcmp(http_request.method, "POST") == 0) 
+        { 
+            
+        }
     }
 
-    return tid_list;
+    close(ns);
+    free(w);
+
+    return 0;
+}
+
+struct ThrInfo* make_worker(int work_num)
+{
+    pthread_t* tid_list = (pthread_t*) malloc(sizeof(pthread_t)*work_num);
+    struct ThrInfo* thrinflist = (struct ThrInfo*)malloc(sizeof(struct ThrInfo)*work_num);
+    for(int i=0; i<work_num; i++)
+    {
+        thrinflist[i].number = i;
+        thrinflist[i].q = new_queue();
+        pthread_create(&thrinflist[i].tid,NULL,worker,(void*)&thrinflist[i]);
+    }
+
+    return thrinflist;
 }
 
 void* worker(void* arg) // worker number
@@ -32,7 +72,7 @@ void* worker(void* arg) // worker number
     {
         struct Work* w = pop(inf->q);
         if(w == NULL)continue;
-        printf("Thread number : %d, Work : %d\n",inf->number ,w->item);
+        handle_client(w);
     }
 }
 
@@ -42,7 +82,7 @@ struct Queue* new_queue()
     struct Queue* q = (struct Queue*)malloc(sizeof(struct Queue));
 
     // initialize
-    q->items = (struct Work*)malloc(sizeof(struct Work));
+    q->items = (struct Work**)malloc(sizeof(struct Work*));
     q->maxsize = 1;
     q->front = 0;
     q->rear = 0;
@@ -77,7 +117,7 @@ struct Work* pop(struct Queue* q)
     return res;
 }
 
-void push(struct Work w,struct Queue* q)
+void push(struct Work* w,struct Queue* q)
 {
     if(full(q)) // size reallocation 
     {

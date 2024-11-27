@@ -1,20 +1,23 @@
+#include "headerlist.h"
+
 #ifndef THREADSTRUCT
 #define THREADSTRUCT
 
 struct ThrInfo
 {
     int number;
+    pthread_t tid;
     struct Queue* q;
 };
 
 struct Work
 {
-    int item;
+    int ns;
 };
 
 struct Queue
 {
-    struct Work* items;
+    struct Work** items;
     int front,rear;
     int maxsize;
 };
