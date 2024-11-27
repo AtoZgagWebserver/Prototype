@@ -1,7 +1,7 @@
 #include "headerlist.h"
 #include "threadfunc.h"
 
-int handclient()
+int handle_client()
 {
     return 0;
     //what to do?

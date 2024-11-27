@@ -8,8 +8,15 @@ struct Question
     char* ans;
 };
 
+struct QuestionList
+{
+    struct Question* item;
+    int size;
+    int maxsize;
+};
 
 #endif
 
 //functions
-struct Question* read_gag();
+struct QuestionList* read_gag();
+struct Question* get_random_Question(struct QuestionList* q_list, int q_size);
