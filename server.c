@@ -3,6 +3,8 @@
 #include "lib/threadfunc.h"
 #include "lib/httpfunc.h"
 
+struct QuestionList *question;
+
 int main(int argc, char* argv[])
 {
     //default set
@@ -44,6 +46,9 @@ int main(int argc, char* argv[])
         perror("listen error");
         exit(1);
     }
+
+    question=read_gag();
+    printf("data loading done\n");
     
     printf("Making worker...\n");
     struct ThrInfo* worker = make_worker(worknum);

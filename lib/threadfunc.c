@@ -33,18 +33,32 @@ int handle_client(struct Work* w)
         //요청에 따라 어떻게 처리할지
         if (strcmp(http_request.method, "GET") == 0) 
         { //GET 요청의 경우
-            printf("get -> html리턴\n");
-            char file_path[512];
-            snprintf(file_path, sizeof(file_path), "../rsc/html/%s", http_request.path[0] == '/' ? http_request.path + 1 : http_request.path);
-            send_file_content(ns, file_path);
+            if(strcmp(http_request.path,"/quiz")==0){
+                send_quiz(ns);
+            }
+            else{
+                printf("get -> html리턴\n");
+                char file_path[512];
+                snprintf(file_path, sizeof(file_path), "./rsc/html/%s", http_request.path[0] == '/' ? http_request.path + 1 : http_request.path);
+                send_file_content(ns, file_path);
+            }
         }
         if (strcmp(http_request.method, "POST") == 0) 
-        { 
-
+        {   
+            if(1){
+                printf("not found\n");
+                const char *not_found_response = 
+                    "HTTP/1.1 404 Not Found\r\n"
+                    "Content-Type: text/plain\r\n"
+                    "Content-Length: 13\r\n"
+                    "\r\n"
+                    "404 Not Found";
+                send(ns, not_found_response, strlen(not_found_response), 0);
+            }
         }
     }
     
-    pclose(ns);
+    close(ns);
     free(w);
 
     return 0;

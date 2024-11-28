@@ -2,14 +2,23 @@
 #include "headerlist.h"
 #include <stdlib.h>
 
+void remove_newline(char* str) {
+    size_t len = strlen(str);
+    while (len > 0 && (str[len - 1] == '\n' || str[len - 1] == '\r' || str[len - 1] == ' ')) {
+        str[len - 1] = '\0';
+        len--;
+    }
+}
+
+
 struct QuestionList* read_gag()
-{
+{   
     struct QuestionList* q_list = (struct QuestionList*)malloc(sizeof(struct QuestionList));
     q_list->size = 0;
     q_list->maxsize = 1;
     q_list->item = (struct Question*)malloc(sizeof(struct Question));
 
-    FILE* fp = fopen("../rsc/gag/gag1.txt", "r");
+    FILE* fp = fopen("./rsc/gag/gag1.txt", "r");
     if(fp == NULL)
     {
         perror("File Open error");
@@ -20,22 +29,26 @@ struct QuestionList* read_gag()
     char ans[256] = {0};
     while(fgets(quest,255,fp)!=NULL)
     {
+        remove_newline(quest);
         if(fgets(ans,255,fp)==NULL)
         {
             perror("data read error");
             exit(1);
         }
+        remove_newline(ans);
         q_list->item[q_list->size].quest = strdup(quest);
         q_list->item[q_list->size].ans = strdup(ans);
         q_list->size++;
         if(q_list->size>=q_list->maxsize)
         {
             q_list->maxsize*=2;
-            if(realloc(q_list->item,sizeof(struct Question)*q_list->maxsize) == NULL)
+            struct Question* temp;
+            if ((temp=realloc(q_list->item,sizeof(struct Question)*q_list->maxsize)) == NULL)
             {
                 perror("realloc");
                 exit(1);
             }
+            q_list->item = temp;
         }
     }
 
