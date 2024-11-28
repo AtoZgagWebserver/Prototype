@@ -11,5 +11,6 @@
 #include <malloc.h>
 #include <string.h>
 #include <pthread.h>
+#include <unistd.h>
 
 #endif
