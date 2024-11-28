@@ -17,7 +17,7 @@ struct Work
 
 struct Queue
 {
-    struct Work** items;
+    struct Work* items;
     int front,rear;
     int maxsize;
 };

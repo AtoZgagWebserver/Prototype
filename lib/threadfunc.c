@@ -21,21 +21,21 @@ int handle_client(struct Work* w)
 
         parse_http_request(data, &http_request);
 
-        // printf("Method: %s\n", http_request.method);
-        // printf("Path: %s\n", http_request.path);
-        // if (http_request.content_length > 0) {
-        //     printf("Content-Length: %d\n", http_request.content_length);
-        // }
-        // if (strlen(http_request.body) > 0) {
-        //     printf("Body:\n%s\n", http_request.body);
-        // }
+        printf("Method: %s\n", http_request.method);
+        printf("Path: %s\n", http_request.path);
+        if (http_request.content_length > 0) {
+             printf("Content-Length: %d\n", http_request.content_length);
+        }
+        if (strlen(http_request.body) > 0) {
+             printf("Body:\n%s\n", http_request.body);
+        }
 
         //요청에 따라 어떻게 처리할지
         if (strcmp(http_request.method, "GET") == 0) 
         { //GET 요청의 경우
             printf("get -> html리턴\n");
             char file_path[512];
-            snprintf(file_path, sizeof(file_path), "./rsc/html/%s", http_request.path[0] == '/' ? http_request.path + 1 : http_request.path);
+            snprintf(file_path, sizeof(file_path), "../rsc/html/%s", http_request.path[0] == '/' ? http_request.path + 1 : http_request.path);
             send_file_content(ns, file_path);
         }
         if (strcmp(http_request.method, "POST") == 0) 
@@ -43,8 +43,8 @@ int handle_client(struct Work* w)
 
         }
     }
-
-    close(ns);
+    
+    pclose(ns);
     free(w);
 
     return 0;
@@ -54,7 +54,7 @@ void* worker(void* arg) // worker number
 {
     struct ThrInfo* inf = (struct ThrInfo*)arg;
 
-    while(1) // thread 개수는 미정 차차 맞춰갈 예정임. 
+    while(1) // thread 개수는 미정 차차 맞춰갈 예정임.
     {
         struct Work* w = pop(inf->q);
         if(w == NULL)continue;
@@ -77,15 +77,13 @@ struct ThrInfo* make_worker(int work_num)
     return thrinflist;
 }
 
-
-
 struct Queue* new_queue()
 {
     // make new queue
     struct Queue* q = (struct Queue*)malloc(sizeof(struct Queue));
 
     // initialize
-    q->items = (struct Work**)malloc(sizeof(struct Work*));
+    q->items = (struct Work*)malloc(sizeof(struct Work));
     q->maxsize = 1;
     q->front = 0;
     q->rear = 0;
@@ -104,17 +102,12 @@ int size(struct Queue* q)
     return q->rear-q->front;   
 }
 
-int full(struct Queue* q)
-{
-    return (q->rear-q->front) == q->maxsize;
-}
-
 struct Work* pop(struct Queue* q)
 {
     //if queue is empty than return NULL;
     if(empty(q))return NULL;
 
-    struct Work* res = q->items[q->front];
+    struct Work* res = &(q->items[q->front]);
     q->front = (q->front+1)%q->maxsize;
 
     return res;
@@ -122,7 +115,9 @@ struct Work* pop(struct Queue* q)
 
 void push(struct Work* w,struct Queue* q)
 {
-    if(full(q)) // size reallocation 
+    q->items[q->rear] = *w;
+    q->rear = (q->rear + 1)%q->maxsize;
+    if(q->rear == q->front) // size reallocation 
     {
         if(realloc(q->items,sizeof(q->items)*2)==NULL)
         {
@@ -140,6 +135,4 @@ void push(struct Work* w,struct Queue* q)
         q->rear = q->maxsize + q->rear;
         q->maxsize*=2;
     }
-    q->items[q->rear] = w;
-    q->rear = (q->rear + 1)%q->maxsize;
 }
