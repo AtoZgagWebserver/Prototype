@@ -21,13 +21,13 @@ int handle_client(struct Work* w)
 
         parse_http_request(data, &http_request);
 
-        printf("Method: %s\n", http_request.method);
-        printf("Path: %s\n", http_request.path);
+        //printf("Method: %s\n", http_request.method);
+        //printf("Path: %s\n", http_request.path);
         if (http_request.content_length > 0) {
-             printf("Content-Length: %d\n", http_request.content_length);
+            // printf("Content-Length: %d\n", http_request.content_length);
         }
         if (strlen(http_request.body) > 0) {
-             printf("Body:\n%s\n", http_request.body);
+             //printf("Body:\n%s\n", http_request.body);
         }
 
         //요청에 따라 어떻게 처리할지
@@ -37,7 +37,7 @@ int handle_client(struct Work* w)
                 send_quiz(ns);
             }
             else{
-                printf("get -> html리턴\n");
+            //    printf("get -> html리턴\n");
                 char file_path[512];
                 snprintf(file_path, sizeof(file_path), "./rsc/html/%s", http_request.path[0] == '/' ? http_request.path + 1 : http_request.path);
                 send_file_content(ns, file_path);
@@ -46,7 +46,7 @@ int handle_client(struct Work* w)
         if (strcmp(http_request.method, "POST") == 0) 
         {   
             if(1){
-                printf("not found\n");
+                //printf("not found\n");
                 const char *not_found_response = 
                     "HTTP/1.1 404 Not Found\r\n"
                     "Content-Type: text/plain\r\n"
@@ -59,7 +59,6 @@ int handle_client(struct Work* w)
     }
     
     close(ns);
-    free(w);
 
     return 0;
 }
@@ -72,7 +71,7 @@ void* worker(void* arg) // worker number
     {
         struct Work* w = pop(inf->q);
         if(w == NULL)continue;
-        printf("Thread number %d get work.\n", inf->number);
+        //printf("Thread number %d get work.\n", inf->number);
         handle_client(w);
     }
 }
@@ -133,7 +132,7 @@ void push(struct Work* w,struct Queue* q)
     q->rear = (q->rear + 1)%q->maxsize;
     if(q->rear == q->front) // size reallocation 
     {
-        if(realloc(q->items,sizeof(q->items)*2)==NULL)
+        if((q->items = realloc(q->items,q->maxsize*2*sizeof(struct Work)))==NULL)
         {
             perror("Realloc");
             exit(1);

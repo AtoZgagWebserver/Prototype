@@ -66,10 +66,10 @@ int main(int argc, char* argv[])
 			perror("accept");
 			exit(1);
 		}
-        printf("accept\n");
-        printf("push work to worker[%d]\n", cnt);
+        //printf("accept\n");
+        //printf("push work to worker[%d]\n", cnt);
         push(work, worker[cnt].q);
-        printf("push done\n");
+        //printf("push done\n");
         cnt = (cnt+1)%worknum;
 
 	}
